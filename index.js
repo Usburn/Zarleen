@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 
-const isDev = process.env.NODE_ENV === "production";
+const isDev = process.env.NODE_ENV === "development";
 
 const db = new pg.Client({
     connectionString: isDev
