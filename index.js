@@ -3,18 +3,24 @@ import bodyParser  from "body-parser"
 import pg, { Result } from "pg"
 import bcrypt, { hash } from "bcrypt";
 import upload from "./upload.js";
+import dotenv from "dotenv";
+dotenv.config();
 
+
+const isDev = process.env.NODE_ENV === "development";
 
 const db = new pg.Client({
-    user: "postgres",
-    host: "localhost",
-    database: "Zarleen",
-    port: 5432
+    user: process.env.DB_USER,
+    host: isDev ? "localhost" : process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT
 });
 
 db.connect()
-  .then(() => console.log("DB connectée ✅"))
+  .then(() => console.log(isDev ? "DB locale connectée ✅" : "DB cloud connectée ☁️"))
   .catch(err => console.log("Erreur DB ❌", err));
+
 
 
 
