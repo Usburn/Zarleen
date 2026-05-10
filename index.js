@@ -10,11 +10,9 @@ dotenv.config();
 const isDev = process.env.NODE_ENV === "development";
 
 const db = new pg.Client({
-    user: process.env.DB_USER,
-    host: isDev ? "localhost" : process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT
+    connectionString: isDev
+        ? `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@localhost:${process.env.DB_PORT || 5432}/${process.env.DB_NAME}`
+        : process.env.DATABASE_URL
 });
 
 db.connect()
