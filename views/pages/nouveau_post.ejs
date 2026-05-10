@@ -1,0 +1,92 @@
+<%- include('partials/header.ejs') %>
+
+
+
+
+    <main class="newPost">
+
+        <form action="/nouveau_post" method="post" class="form_post">
+<h3>Nouveau post</h3>
+            <div class="field">
+
+                <label for="user">Choisir un utilisateur</label>
+                <select name="user" id="user">
+                    <% users.forEach(user=> {%>
+                        <option value="<%= user.id_user %>">
+                            <%= user.nom %>
+                        </option>
+                        <% }); %>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+                <label for="titre">Titre:</label>
+                <textarea name="titre" id="titre" rows="4" required></textarea>
+            </div>
+
+            <div class="field">
+                <label for="accroche">Accroche:</label>
+                <textarea name="accroche" id="accroche" rows="4" required></textarea>
+            </div>
+
+            <div class="field">
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date">
+
+            </div>
+
+            <button type="submit">Envoyer</button>
+
+        </form>
+
+
+
+        <form action="/post_commentaires" method="post" enctype="multipart/form-data">
+<h3>Nouveau commentaire</h3>
+            <div class="field">
+                <label for="post_choisi">Choisir le post pour lequel vous voulez faire le commentaire</label>
+                <select name="post_choisi" id="post_choisi" required>
+                    <% posts.forEach(post=> { %>
+                        <option value="<%= post.id_post %>">
+                            <%= post.titre %>
+                        </option>
+                        <% }) %>
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="commentaire">Commentaire</label>
+                <textarea name="commentaire" id="commentaire" rows="10" cols="20" required></textarea>
+            </div>
+
+            <div class="field">
+                <label for="picture">Ajouter une photo</label>
+                <input type="file" name="image" accept="image/*">
+                <small>Optionnel</small>
+            </div>
+
+            <button type="submit">Envoyer</button>
+
+        </form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </main>
+<script src="/js/script.js"></script>
+
+    <%- include('partials/footer') %>

@@ -1,0 +1,32 @@
+<%- include('partials/header.ejs') %>
+
+<main >
+
+    <div class="detail_container">
+        <div class="detail">
+            <h1><%= post.titre %></h1>
+  <h2><%= post.accroche %></h2>
+
+  <% comments.forEach(comment => { %>
+
+    <p><%= comment.content %></p>
+
+    <% if (comment.image) { %>
+      <div class="container_image">
+        <img src="<%= comment.image %>" alt="image commentaire" width="200">
+      </div>
+    <% } %>
+
+  <% }) %>
+
+
+    </div>
+
+        </div>
+        
+
+  
+</main>
+<script src="/js/script.js"></script>
+
+<%- include('partials/footer') %>

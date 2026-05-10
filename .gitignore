@@ -1,0 +1,17 @@
+node_modules/
+
+# Variables d'environnement (contient mots de passe !)
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Éditeurs
+.vscode/
+.idea/

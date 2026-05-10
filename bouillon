@@ -1,0 +1,52 @@
+  <form action="/post_detail" method="post">
+
+            <div>
+                <label for="post_choisi">Choisir le post </label>
+                <select name="post_choisi" id="post_choisi">
+                    <% posts.forEach(post=> { %>
+                        <option value="<%= post.id_post %>">
+                            <%= post.title %>
+                        </option>
+
+                        <% }) %>
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="user">Choisir un utilisateur</label>
+                <select name="user" id="user">
+                    <% users.forEach(user=> {%>
+                        <option value="<%= user.id_user %>">
+                            <%= user.nom %>
+                        </option>
+                        <% }); %>
+
+                </select>
+
+            </div>
+
+
+
+
+            <div>
+
+
+
+            </div>
+
+
+
+
+
+
+
+
+
+            <div>
+                <label for="picture">Ajouter une photo</label>
+                <input type="file" name="image" accept="image/*" capture="environment" />
+            </div>
+        </form>

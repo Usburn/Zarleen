@@ -1,0 +1,53 @@
+<%- include('partials/header.ejs') %>
+
+<main>
+
+    <div class="all_posts">
+<h1 class="h1-post">Tous les posts</h1>
+<% posts.forEach(post => { %>
+<div class="post">
+    <h2> <%= post.titre %></h2>
+
+    <h3><%= post.accroche %></h3>
+
+    <p><%= post.content %> </p>
+
+ <p>
+  <%= post.date_comment
+    ? new Date(post.date_comment).toLocaleDateString('fr-CA')
+    : 'Date inconnue' %>
+</p>
+<div class="container-btn">
+  <a href="/posts/<%= post.id_post %>" class="btn">
+    Voir les détails
+  </a>
+</div>
+ 
+
+
+</div>
+   
+ 
+<% }) %>
+
+       
+
+    </div>
+
+
+</main>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+
+
+   <%- include('partials/footer') %>
