@@ -13,8 +13,8 @@
     <p><%= post.content %> </p>
 
  <p>
-  <%= post.date_comment
-    ? new Date(post.date_comment).toLocaleDateString('fr-CA')
+  <%= post.date
+    ? new Date(post.date).toLocaleDateString('fr-CA')
     : 'Date inconnue' %>
 </p>
 <div class="container-btn">
