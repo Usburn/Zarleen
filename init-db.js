@@ -10,7 +10,18 @@ async function initDb() {
   try {
     await client.connect();
     const sql = fs.readFileSync('./init.sql', 'utf8');
-    await client.query(sql);
+    
+    // Split by semicolon and filter out empty statements
+    const statements = sql
+      .split(';')
+      .map(stmt => stmt.trim())
+      .filter(stmt => stmt.length > 0);
+    
+    // Execute each statement separately
+    for (const statement of statements) {
+      await client.query(statement);
+    }
+    
     console.log('Database initialized successfully');
     await client.end();
   } catch (error) {
