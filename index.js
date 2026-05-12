@@ -202,7 +202,7 @@ app.post("/nouveau_post", async(req, res)=>{
 
     try{
        let  result2 = await db.query(`
-            insert into posts( id_user, titre, accroche, date_comment)values($1, $2, $3, $4)
+            insert into posts(id_user, titre, accroche, date) values($1, $2, $3, $4)
             `, [user, titre, accroche, date])
 
 

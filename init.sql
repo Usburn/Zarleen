@@ -10,6 +10,7 @@ CREATE TABLE posts(
  id_post SERIAL PRIMARY KEY,
  titre VARCHAR(100) NOT NULL,
  accroche varchar(100) default null,
+ date DATE DEFAULT CURRENT_DATE,
  id_user INT NOT NULL,
  FOREIGN KEY(id_user) REFERENCES users(id_user)
 );
