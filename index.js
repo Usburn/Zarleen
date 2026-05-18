@@ -40,7 +40,7 @@ app.use("/uploads", express.static("uploads"));
 async function loadPosts(){
 const Posts = await db.query(`
 select * from posts 
-order by id_post DESC;
+order by date DESC;
  
  `)
  return Posts.rows
