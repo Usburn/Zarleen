@@ -206,6 +206,13 @@ header.accueil * {
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 4px;
+}
+
+.container-btn form {
+    margin: 0;
+    padding: 0;
+    display: inline;
 }
 
 .container-btn a{
