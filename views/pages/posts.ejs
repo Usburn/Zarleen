@@ -21,7 +21,7 @@
   <a href="/posts/<%= post.id_post %>" class="btn">
     Voir les détails
   </a>
-  <form method="POST" action="/delete_post/<%= post.id_post %>" style="margin: 0;">
+  <form method="POST" action="/delete_post/<%= post.id_post %>" style="margin: 0; padding: 0; display: inline;">
     <button type="submit" class="btn-delete" onclick="return confirm('Êtes-vous sûr ?')">Supprimer</button>
   </form>
 </div>
