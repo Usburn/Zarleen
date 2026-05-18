@@ -217,6 +217,20 @@ app.post("/nouveau_post", async(req, res)=>{
 })
 
 
+app.post("/delete_post/:id", async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        await db.query("DELETE FROM comments WHERE id_post = $1", [id]);
+        await db.query("DELETE FROM posts WHERE id_post = $1", [id]);
+        res.redirect("/nouveau_post");
+    } catch (err) {
+        console.log("Erreur lors de la suppression du post :", err);
+        res.status(500).send("Erreur lors de la suppression du post");
+    }
+});
+
+
 app.get("/post_commentaires",async(req, res)=>{
    let all_posts2 = await loadPosts();
 
