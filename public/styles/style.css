@@ -212,10 +212,26 @@ header.accueil * {
   color: green;
 }
 
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  width: 6.5rem;
+  height: 2.5rem;
+  font-size: 1rem;
+  border: 1px solid white;
+  background-color: var(--headBackgroundColor);
+  color: var(--secondary-color);
+}
+
 .btn-delete {
   background-color: #e57373;
   color: white;
   border: 1px solid #c62828;
+  width: 6.5rem;
+  height: 2.5rem;
+  font-size: 1rem;
 }
 
 .detail_container{
@@ -302,9 +318,8 @@ button {
   border-radius: 5px;
   width: 6.5rem;
   height: 2.5rem;
-  
   background-color: var(--headBackgroundColor);
-    font-size: 1.2rem;
+  font-size: 1rem;
   border: 1px solid white;
   color: var(--secondary-color);
 }
