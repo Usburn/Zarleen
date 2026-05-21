@@ -65,20 +65,31 @@ app.get("/posts/:id", async (req, res) => {
 
     const id = req.params.id;
 
-    const postResult = await db.query(
-        "SELECT * FROM posts WHERE id_post = $1",
-        [id]
-    );
+    try {
+        const postResult = await db.query(
+            "SELECT * FROM posts WHERE id_post = $1",
+            [id]
+        );
 
-    const commentsResult = await db.query(
-        "SELECT * FROM comments WHERE id_post = $1",
-        [id]
-    );
+        if (!postResult.rows[0]) {
+            console.log(`Post introuvable pour l'id : ${id}`);
+            return res.status(404).redirect("/posts");
+        }
 
-    res.render("pages/post_details", {
-        post: postResult.rows[0],
-        comments: commentsResult.rows
-    });
+        const commentsResult = await db.query(
+            "SELECT * FROM comments WHERE id_post = $1",
+            [id]
+        );
+
+        res.render("pages/post_details", {
+            post: postResult.rows[0],
+            comments: commentsResult.rows
+        });
+
+    } catch (err) {
+        console.log("Erreur lors du chargement du post :", err);
+        res.status(500).send("Erreur serveur");
+    }
 
 });
 

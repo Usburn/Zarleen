@@ -4,10 +4,13 @@
 
     <div class="detail_container">
         <div class="detail">
+            <% if (typeof post === 'undefined' || !post) { %>
+                <p>Ce post est introuvable.</p>
+            <% } else { %>
             <h1><%= post.titre %></h1>
   <h2><%= post.accroche %></h2>
 
-  <% comments.forEach(comment => { %>
+  <% (comments || []).forEach(comment => { %>
 
     <p><%= comment.content %></p>
 
@@ -19,6 +22,7 @@
 
   <% }) %>
 
+            <% } %>
 
     </div>
 
