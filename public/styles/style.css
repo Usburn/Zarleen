@@ -345,6 +345,11 @@ button {
   font-size: 3rem;
 }
 
+form .delete{
+  width: auto;
+  height: auto;
+}
+
 @media only screen and (max-width: 1119px) {
 
 body, html {
