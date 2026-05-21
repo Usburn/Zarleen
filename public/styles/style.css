@@ -345,9 +345,18 @@ button {
   font-size: 3rem;
 }
 
-form .delete{
-  width: auto;
-  height: auto;
+
+
+form.delete {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+    align-items: center;
+    width: 25rem;
+    height: 20rem;
+    border: 1px solid black;
+    border-radius: 5px;
 }
 
 @media only screen and (max-width: 1119px) {
