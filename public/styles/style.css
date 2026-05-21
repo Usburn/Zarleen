@@ -353,8 +353,8 @@ form.delete {
     justify-content: center;
     gap: 1rem;
     align-items: center;
-    width: 25rem;
-    height: 20rem;
+    width: auto;
+    height: auto;
     border: 1px solid black;
     border-radius: 5px;
 }
