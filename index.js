@@ -12,7 +12,9 @@ const isDev = process.env.NODE_ENV === "development";
 const db = new pg.Client({
     connectionString: isDev
         ? `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@localhost:${process.env.DB_PORT || 5432}/${process.env.DB_NAME}`
-        : process.env.DATABASE_URL
+        : process.env.DATABASE_URL,
+    statement_timeout: 10000, // 10s max per query to avoid hanging connections
+    query_timeout: 10000
 });
 
 db.connect()
@@ -40,8 +42,8 @@ app.use("/uploads", express.static("uploads"));
 async function loadPosts(){
 const Posts = await db.query(`
 select * from posts 
-order by date DESC;
- 
+order by date DESC
+LIMIT 100;
  `)
  return Posts.rows
 }
@@ -51,9 +53,15 @@ order by date DESC;
 
 app.get("/posts", async(req, res)=>{
 
-    const all_posts = await loadPosts();
+    try {
+        const all_posts = await loadPosts();
 
-    res.render("pages/posts.ejs", {posts: all_posts})
+        res.render("pages/posts.ejs", {posts: all_posts})
+
+    } catch (err) {
+        console.log("Erreur lors du chargement des posts :", err);
+        res.status(500).send("Erreur serveur");
+    }
 
 })
 
@@ -188,9 +196,9 @@ app.post("/connecter", async (req, res) => {
 
 app.get("/nouveau_post", async(req, res)=>{
 
-    let all_posts2 = await loadPosts();
-    
     try{
+        let all_posts2 = await loadPosts();
+
         const result = await db.query(`select * from users`)
 
         res.render("pages/nouveau_post.ejs", {users: result.rows, 
@@ -198,7 +206,8 @@ app.get("/nouveau_post", async(req, res)=>{
         })
 
     }catch(err){
-        console.log(err)
+        console.log("Erreur lors du chargement de nouveau_post :", err)
+        res.status(500).send("Erreur serveur")
     }
 
 })
@@ -243,11 +252,10 @@ app.post("/delete_post/:id", async (req, res) => {
 
 
 app.get("/post_commentaires",async(req, res)=>{
-   let all_posts2 = await loadPosts();
 
-   console.log(all_posts2 )
-    
     try{
+        let all_posts2 = await loadPosts();
+
         const result = await db.query(`select * from users`)
 
         res.render("pages/nouveau_post.ejs", {users: result.rows, 
@@ -255,7 +263,8 @@ app.get("/post_commentaires",async(req, res)=>{
         })
 
     }catch(err){
-        console.log(err)
+        console.log("Erreur lors du chargement de post_commentaires :", err)
+        res.status(500).send("Erreur serveur")
     }
 })
 
