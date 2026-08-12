@@ -7,49 +7,18 @@ import dotenv from "dotenv";
 dotenv.config();
 
 
-const isDev = process.env.NODE_ENV === "developpement";
-
-console.log("isDev =", isDev);
-
-let db;
-
-if (isDev) {
-  const { Pool } = pg;
-
-  db = new Pool({
-    user: "postgres",
-    host: "localhost",
-    database: "Zarlheen",
-    password: process.env.PASSWORD,
-    port: 5432
-  });
-
-  db.connect()
-    .then(() => {
-      console.log("Connection locale!!!");
-    })
-    .catch((err) => {
-      console.error("Erreur PostgreSQL :", err);
-    });
-}else{
-
 const db = new pg.Client({
-    connectionString: isDev
-        ? `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@localhost:${process.env.DB_PORT || 5432}/${process.env.DB_NAME}`
-        : process.env.DATABASE_URL,
-    statement_timeout: 10000, // 10s max per query to avoid hanging connections
+    connectionString: process.env.DATABASE_URL,
+    statement_timeout: 10000,
     query_timeout: 10000
 });
 
-
+try {
+    await db.connect();
+    console.log("DB connected ☁️");
+} catch (err) {
+    console.error("Erreur PostgreSQL :", err);
 }
-
-
-
-
-// db.connect()
-//   .then(() => console.log(isDev ? "DB locale connectée ✅" : "DB cloud connectée ☁️"))
-//   .catch(err => console.log("Erreur DB ❌", err));
 
 
 
