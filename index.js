@@ -7,7 +7,31 @@ import dotenv from "dotenv";
 dotenv.config();
 
 
-const isDev = process.env.NODE_ENV === "development";
+const isDev = process.env.NODE_ENV === "developpement";
+
+console.log("isDev =", isDev);
+
+let db;
+
+if (isDev) {
+  const { Pool } = pg;
+
+  db = new Pool({
+    user: "postgres",
+    host: "localhost",
+    database: "Zarlheen",
+    password: process.env.PASSWORD,
+    port: 5432
+  });
+
+  db.connect()
+    .then(() => {
+      console.log("Connection locale!!!");
+    })
+    .catch((err) => {
+      console.error("Erreur PostgreSQL :", err);
+    });
+}else{
 
 const db = new pg.Client({
     connectionString: isDev
@@ -17,9 +41,15 @@ const db = new pg.Client({
     query_timeout: 10000
 });
 
-db.connect()
-  .then(() => console.log(isDev ? "DB locale connectée ✅" : "DB cloud connectée ☁️"))
-  .catch(err => console.log("Erreur DB ❌", err));
+
+}
+
+
+
+
+// db.connect()
+//   .then(() => console.log(isDev ? "DB locale connectée ✅" : "DB cloud connectée ☁️"))
+//   .catch(err => console.log("Erreur DB ❌", err));
 
 
 
@@ -65,6 +95,10 @@ app.get("/posts", async(req, res)=>{
 
 })
 
+app.get("/statistique", async(req, res)=>{
+    res.render("pages/statistique.ejs")
+})
+
 
 
 
@@ -99,6 +133,63 @@ app.get("/posts/:id", async (req, res) => {
         res.status(500).send("Erreur serveur");
     }
 
+});
+
+
+app.post("/modifier/:id", upload.single("new_file"), async (req, res) => {
+  console.log("🔥 POST MODIFIER");
+  console.log("ID :", req.params.id);
+  console.log("BODY :", req.body);
+  console.log("FILE :", req.file);
+
+  try {
+    const id = parseInt(req.params.id);
+
+    const new_paragraph = req.body.new_paragraph || null;
+    const new_file = req.file;
+
+    // Modification du texte
+    if (new_paragraph) {
+      await db.query(
+        `UPDATE comments
+         SET content = $1
+         WHERE id_comment = $2`,
+        [new_paragraph, id]
+      );
+    }
+
+    // Modification de l'image
+    if (new_file) {
+      const new_imagepath = "/uploads/" + new_file.filename;
+
+      await db.query(
+        `UPDATE comments
+         SET image = $1
+         WHERE id_comment = $2`,
+        [new_imagepath, id]
+      );
+    }
+
+    // Récupérer le post auquel appartient le commentaire
+    const result = await db.query(
+      `SELECT id_post
+       FROM comments
+       WHERE id_comment = $1`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).send("Commentaire introuvable");
+    }
+
+    console.log("POST ID :", result.rows[0].id_post);
+
+    res.redirect(`/posts/${result.rows[0].id_post}`);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Erreur dans modification de post");
+  }
 });
 
 
@@ -272,7 +363,8 @@ app.get("/post_commentaires",async(req, res)=>{
 
 app.post("/post_commentaires", upload.single("image"), async (req, res) => {
 
-    const { post_choisi, commentaire } = req.body;
+    const post_choisi = req.body.post_choisi
+    const commentaire = req.body.commentaire || null
     const current_date = new Date();
 
     const image = req.file;
@@ -280,7 +372,7 @@ app.post("/post_commentaires", upload.single("image"), async (req, res) => {
 
     try {
 
-        if (commentaire && commentaire.trim() !== "") {
+        if (commentaire || image) {
 
             await db.query(
                 `INSERT INTO comments (id_post, content, date_comment, image)
@@ -290,12 +382,58 @@ app.post("/post_commentaires", upload.single("image"), async (req, res) => {
 
         }
 
+
+
         res.redirect("/nouveau_post");
 
     } catch (error) {
         console.log(error);
         res.send("Erreur lors de l'ajout du commentaire");
     }
+});
+
+
+app.post("/statistique", async (req, res) => {
+
+  const date = req.body.date;
+
+  const quantite = parseInt(req.body.quantite);
+
+  const selle = req.body.selle;
+  const urine = req.body.urine;
+
+  const quantite_lait = req.body.quantite_lait
+    ? parseFloat(req.body.quantite_lait)
+    : null;
+
+  const poids = req.body.poids
+    ? parseFloat(req.body.poids)
+    : null;
+
+  try {
+
+    await db.query(`
+      INSERT INTO donnees
+        (date_donnee, quantite, selle, urine, quantite_lait, poids)
+      VALUES ($1, $2, $3, $4, $5, $6)
+    `, [
+      date,
+      quantite,
+      selle,
+      urine,
+      quantite_lait,
+      poids
+    ]);
+
+    res.redirect("/statistique");
+
+  } catch (err) {
+
+    console.error(err);
+    res.status(500).send("Erreur dans l'insertion des données");
+
+  }
+
 });
 
 

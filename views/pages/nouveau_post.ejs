@@ -29,7 +29,7 @@
 
             <div class="field">
                 <label for="accroche">Accroche:</label>
-                <textarea name="accroche" id="accroche" rows="4" required></textarea>
+                <textarea name="accroche" id="accroche" rows="4"></textarea>
             </div>
 
             <div class="field">
@@ -48,7 +48,7 @@
 <h3>Nouveau commentaire</h3>
             <div class="field">
                 <label for="post_choisi">Choisir le post pour lequel vous voulez faire le commentaire</label>
-                <select name="post_choisi" id="post_choisi" required>
+                <select name="post_choisi" id="post_choisi">
                     <% posts.forEach(post=> { %>
                         <option value="<%= post.id_post %>">
                             <%= post.titre %>
@@ -59,7 +59,7 @@
 
             <div class="field">
                 <label for="commentaire">Commentaire</label>
-                <textarea name="commentaire" id="commentaire" rows="10" cols="20" required></textarea>
+                <textarea name="commentaire" id="commentaire" rows="10" cols="20" ></textarea>
             </div>
 
             <div class="field">

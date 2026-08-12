@@ -1,36 +1,96 @@
 <%- include('partials/header.ejs') %>
 
-<main >
+  <main>
 
     <div class="detail_container">
-        <div class="detail">
-            <% if (typeof post === 'undefined' || !post) { %>
-                <p>Ce post est introuvable.</p>
-            <% } else { %>
-            <h1><%= post.titre %></h1>
-  <h2><%= post.accroche %></h2>
 
-  <% (comments || []).forEach(comment => { %>
+      <div class="detail">
 
-    <p><%= comment.content %></p>
+        <% if (typeof post==='undefined' || !post) { %>
 
-    <% if (comment.image) { %>
-      <div class="container_image">
-        <img src="<%= comment.image %>" alt="image commentaire" width="200">
+          <p>Ce post est introuvable.</p>
+
+          <% } else { %>
+
+            <h1>
+              <%= post.titre %>
+            </h1>
+
+            <h2>
+              <%= post.accroche %>
+            </h2>
+
+            <% (comments || []).forEach(comment=> { %>
+
+              <!-- Contenu du commentaire -->
+              <% if (comment.content) { %>
+
+                <p>
+                  <%= comment.content %>
+                </p>
+
+                <!-- Modification du commentaire -->
+                <div class="paragraph-hidden hidden">
+
+                  <form action="/modifier/<%= comment.id_comment %>" method="POST" class="paragraph-modifier">
+
+                    <textarea name="new_paragraph" class="new_paragraph"><%= comment.content %></textarea>
+
+                    <button type="submit" class="btn-modifier">
+                      Enregistrer
+                    </button>
+
+                  </form>
+
+                </div>
+
+                <% } %>
+
+
+                  <!-- Image du commentaire -->
+                  <% if (comment.image) { %>
+
+                    <div class="container_image">
+
+                      <img src="<%= comment.image %>" alt="image commentaire" width="200">
+
+                    </div>
+
+                    <div class="paragraph-hidden hidden">
+
+                      <form action="/modifier/<%= comment.id_comment %>" method="POST" enctype="multipart/form-data"
+                        class="new_file">
+
+                        <input type="file" name="new_file">
+
+                        <button type="submit">
+                          Enregistrer
+                        </button>
+
+                      </form>
+
+                    </div>
+
+                    <% } %>
+
+
+                      <!-- Formulaire pour modifier l'image -->
+
+
+                      <% }) %>
+
+                        <% } %>
+
       </div>
-    <% } %>
 
-  <% }) %>
-
-            <% } %>
+      <button type="button" id="modification">
+        Modifier ce post
+      </button>
 
     </div>
 
-        </div>
-        
+  </main>
 
-  
-</main>
-<script src="/js/script.js"></script>
+  <script src="/js/script.js"></script>
 
-<%- include('partials/footer') %>
+  <%- include('partials/footer') %>

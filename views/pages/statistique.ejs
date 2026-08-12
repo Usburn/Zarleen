@@ -1,0 +1,62 @@
+<%- include('partials/header.ejs') %>
+
+
+
+
+<main class="newPost" id="donnee">
+
+     <h1>Formulaire de collecte de données</h1>
+
+      <form action="/statistique" method="post" class="form_post">
+
+       
+           
+            <div class="field">
+                <label for="date">Date-heure:</label>
+                <input type="datetime-local" id="date" name="date">
+            </div>
+
+            <div class="field">
+                <label for="quantite">Quantité:</label>
+               <input type="number" name="quantite">
+            </div>
+
+            <div class="field">
+                <label for="selle">Selle:</label>
+                <select name="selle" id="selle">
+                    <option value="">Selectionner</option>
+                    <option value="oui">oui</option>
+                    <option value="non">non</option>
+                </select>
+            </div>
+
+
+                <div class="field">
+                <label for="urine">Urine:</label>
+                <select name="urine" id="selle">
+                    <option value="">Selectionner</option>
+                    <option value="oui">oui</option>
+                    <option value="non">non</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="quantite_lait">Lait meternelle:</label>
+               <input type="number" name="quantite_lait">
+            </div>
+
+
+               <div class="field">
+                <label for="poids">Poids:</label>
+               <input type="number" name="poids" step="any">
+            </div>
+
+
+
+            <button type="submit">Envoyer</button>
+
+        </form>
+</main>
+
+<script src="/js/script.js"></script>
+<%- include('partials/footer') %>

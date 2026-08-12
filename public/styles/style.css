@@ -250,9 +250,11 @@ header.accueil * {
     overflow-y: scroll;
     padding: 2rem;
     box-sizing: border-box;
+    
 }
 .detail{
     width: 50%;
+    border:1px solid yellow ;
 }
 
 
@@ -276,6 +278,20 @@ header.accueil * {
     width: 50%;
     height: auto;
     margin-left: 25%;
+}
+
+
+.paragraph-modifier{
+  width: fit-content !important;
+  height: fit-content;
+}
+
+.new_paragraph{
+  width: 40vw;
+}
+.new_file{
+  width: fit-content;
+  height: fit-content;
 }
 
 .newPost{
@@ -357,6 +373,17 @@ form.delete {
     height: auto;
     border: 1px solid black;
     border-radius: 5px;
+}
+
+
+.hidden{
+  display: none;
+}
+
+
+#donnee {
+  display: flex;
+  flex-direction: column;
 }
 
 @media only screen and (max-width: 1119px) {
