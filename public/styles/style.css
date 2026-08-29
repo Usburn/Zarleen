@@ -1,17 +1,16 @@
 @import url("https://fonts.googleapis.com/css2?family=Kavivanar&family=Qwigley&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Rye&family=Tangerine:wght@400;700&family=UnifrakturMaguntia&display=swap");
 
 
-body,
-html {
-  background-color: whitesmoke;
-  margin: 0px;
-  padding: 0px;
-  width: 100%;
-  min-height: 100vh;
-  height: auto;
-  box-sizing: border-box;
-  overflow-x: hidden;
-  overflow-y: hidden;
+html,
+body {
+    background-color: whitesmoke;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 :root{
@@ -250,11 +249,14 @@ header.accueil * {
     overflow-y: scroll;
     padding: 2rem;
     box-sizing: border-box;
+    gap: 1rem;
     
 }
 .detail{
     width: 50%;
-    border:1px solid yellow ;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 
@@ -380,10 +382,20 @@ form.delete {
   display: none;
 }
 
-
 #donnee {
-  display: flex;
-  flex-direction: column;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    height: auto;
+    min-height: 83vh;
+}
+
+#donnee p {
+  color: var(--secondary-color);
+  margin: 0;
+  padding: 0;
+  font-size: 1.5rem;
 }
 
 @media only screen and (max-width: 1119px) {

@@ -5,7 +5,22 @@
 
 <main class="newPost" id="donnee">
 
+  <% if (locals.result) { %>
+
+    <p>
+        La quantité totale bue aujourd'hui est :
+        <%= result.aujourdHui %> ml
+    </p>
+
+    <p>
+        La quantité totale bue hier est :
+        <%= result.hier %> ml
+    </p>
+
+<% } %>
+
      <h1>Formulaire de collecte de données</h1>
+ 
 
       <form action="/statistique" method="post" class="form_post">
 
@@ -41,7 +56,7 @@
             </div>
 
             <div class="field">
-                <label for="quantite_lait">Tirage:</label>
+                <label for="quantite_lait">Lait maternel:</label>
                <input type="number" name="quantite_lait">
             </div>
 

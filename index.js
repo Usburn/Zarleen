@@ -47,6 +47,38 @@ LIMIT 100;
  return Posts.rows
 }
 
+async function dailyMilk() {
+    const today = new Date();
+
+    const date = today.toISOString().split('T')[0];
+
+    today.setDate(today.getDate() - 1);
+
+    const hier = today.toISOString().split('T')[0];
+
+    const totalMilk = await db.query(`
+        SELECT 
+            DATE(date_donnee) AS date,
+            SUM(quantite) AS total_quantite
+        FROM donnees
+        WHERE DATE(date_donnee) IN ($1, $2)
+        GROUP BY DATE(date_donnee)
+        ORDER BY DATE(date_donnee);
+    `, [date, hier]);
+
+    const aujourdHui = totalMilk.rows.find(
+        row => row.date.toISOString().split('T')[0] === date
+    );
+
+    const hierResult = totalMilk.rows.find(
+        row => row.date.toISOString().split('T')[0] === hier
+    );
+
+    return {
+        aujourdHui: aujourdHui ? Number(aujourdHui.total_quantite) : 0,
+        hier: hierResult ? Number(hierResult.total_quantite) : 0
+    };
+}
 
 
 
@@ -64,9 +96,7 @@ app.get("/posts", async(req, res)=>{
 
 })
 
-app.get("/statistique", async(req, res)=>{
-    res.render("pages/statistique.ejs")
-})
+
 
 
 
@@ -360,6 +390,16 @@ app.post("/post_commentaires", upload.single("image"), async (req, res) => {
         res.send("Erreur lors de l'ajout du commentaire");
     }
 });
+
+
+
+
+app.get("/statistique", async(req, res)=>{
+    const result = await dailyMilk();
+
+    res.render("pages/statistique.ejs", {result})
+});
+
 
 
 app.post("/statistique", async (req, res) => {
