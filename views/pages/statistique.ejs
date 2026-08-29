@@ -27,6 +27,11 @@
         <%= result.urineAujourdHui %>
     </p>
 
+    <p style="color: red;">
+        Dernière selle:
+        <%= result.lastSelle ? new Date(result.lastSelle).toLocaleString('fr-FR') : "Aucune donnée" %>
+    </p>
+
     <p>
         Nombre de selles aujourd'hui :
         <%= result.selleAujourdHui %>
