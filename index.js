@@ -74,9 +74,30 @@ async function dailyMilk() {
         row => row.date.toISOString().split('T')[0] === hier
     );
 
+    const totalLaitMaternel = await db.query(`
+        SELECT SUM(quantite_lait) AS total_quantite_lait
+        FROM donnees
+        WHERE DATE(date_donnee) = $1;
+    `, [date]);
+
+    const totalUrine = await db.query(`
+        SELECT COUNT(*) AS total_urine
+        FROM donnees
+        WHERE DATE(date_donnee) = $1 AND urine = 'oui';
+    `, [date]);
+
+    const totalSelle = await db.query(`
+        SELECT COUNT(*) AS total_selle
+        FROM donnees
+        WHERE DATE(date_donnee) = $1 AND selle = 'oui';
+    `, [date]);
+
     return {
         aujourdHui: aujourdHui ? Number(aujourdHui.total_quantite) : 0,
-        hier: hierResult ? Number(hierResult.total_quantite) : 0
+        hier: hierResult ? Number(hierResult.total_quantite) : 0,
+        quantiteLaitAujourdHui: totalLaitMaternel.rows[0] ? Number(totalLaitMaternel.rows[0].total_quantite_lait) || 0 : 0,
+        urineAujourdHui: totalUrine.rows[0] ? Number(totalUrine.rows[0].total_urine) : 0,
+        selleAujourdHui: totalSelle.rows[0] ? Number(totalSelle.rows[0].total_selle) : 0
     };
 }
 
