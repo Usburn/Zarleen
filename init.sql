@@ -39,6 +39,10 @@ CREATE TABLE IF NOT EXISTS donnees (
 );
 
 
+ALTER TABLE comments
+ALTER COLUMN content DROP NOT NULL;
+
+
 
 
 
