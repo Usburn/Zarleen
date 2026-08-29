@@ -363,7 +363,7 @@ app.get("/post_commentaires",async(req, res)=>{
 app.post("/post_commentaires", upload.single("image"), async (req, res) => {
 
     const post_choisi = req.body.post_choisi
-    const commentaire = req.body.commentaire || null
+    const commentaire = req.body.commentaire || "[Image uploaded without comment]"
     const current_date = new Date();
 
     const image = req.file;
