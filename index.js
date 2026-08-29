@@ -92,12 +92,20 @@ async function dailyMilk() {
         WHERE DATE(date_donnee) = $1 AND selle = 'oui';
     `, [date]);
 
+    const sellesAujourdHui = await db.query(`
+        SELECT *
+        FROM donnees
+        WHERE DATE(date_donnee) = $1 AND selle = 'oui'
+        ORDER BY date_donnee DESC;
+    `, [date]);
+
     return {
         aujourdHui: aujourdHui ? Number(aujourdHui.total_quantite) : 0,
         hier: hierResult ? Number(hierResult.total_quantite) : 0,
         quantiteLaitAujourdHui: totalLaitMaternel.rows[0] ? Number(totalLaitMaternel.rows[0].total_quantite_lait) || 0 : 0,
         urineAujourdHui: totalUrine.rows[0] ? Number(totalUrine.rows[0].total_urine) : 0,
-        selleAujourdHui: totalSelle.rows[0] ? Number(totalSelle.rows[0].total_selle) : 0
+        selleAujourdHui: totalSelle.rows[0] ? Number(totalSelle.rows[0].total_selle) : 0,
+        sellesAujourdHui: sellesAujourdHui.rows
     };
 }
 
