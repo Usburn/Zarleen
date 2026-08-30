@@ -47,27 +47,40 @@ LIMIT 100;
  return Posts.rows
 }
 
+const APP_TIMEZONE = process.env.APP_TIMEZONE || "America/Toronto";
+
 async function dailyMilk() {
-    const today = new Date();
+    // Compute "today" and "yesterday" from the database server's point of view,
+    // but expressed in the user's local timezone instead of UTC. This avoids
+    // the classic bug where a user in Canada (UTC-4/5/6/7) enters data at, say,
+    // 11pm local time on Aug 29, but the server (running in UTC) thinks it's
+    // already Aug 30, so "today's" queries never find the entry.
+    const todayRow = await db.query(
+        `SELECT (CURRENT_DATE AT TIME ZONE $1)::DATE AS today`,
+        [APP_TIMEZONE]
+    );
 
-    const date = today.toISOString().split('T')[0];
+    const date = todayRow.rows[0].today.toISOString().split('T')[0];
 
-    today.setDate(today.getDate() - 1);
+    const hierRow = await db.query(
+        `SELECT ($1::DATE - INTERVAL '1 day')::DATE AS hier`,
+        [date]
+    );
 
-    const hier = today.toISOString().split('T')[0];
+    const hier = hierRow.rows[0].hier.toISOString().split('T')[0];
 
-    console.log(`[dailyMilk] Filtering donnees for date=${date} and hier=${hier} using timezone-aware date range`);
+    console.log(`[dailyMilk] Filtering donnees for date=${date} and hier=${hier} using timezone-aware date range (${APP_TIMEZONE})`);
 
     const totalMilk = await db.query(`
         SELECT 
-            DATE(date_donnee) AS date,
+            CAST(date_donnee AT TIME ZONE $3 AS DATE) AS date,
             SUM(quantite) AS total_quantite
         FROM donnees
-        WHERE (date_donnee >= $1::DATE AND date_donnee < ($1::DATE + INTERVAL '1 day'))
-           OR (date_donnee >= $2::DATE AND date_donnee < ($2::DATE + INTERVAL '1 day'))
-        GROUP BY DATE(date_donnee)
-        ORDER BY DATE(date_donnee);
-    `, [date, hier]);
+        WHERE CAST(date_donnee AT TIME ZONE $3 AS DATE) = $1::DATE
+           OR CAST(date_donnee AT TIME ZONE $3 AS DATE) = $2::DATE
+        GROUP BY CAST(date_donnee AT TIME ZONE $3 AS DATE)
+        ORDER BY CAST(date_donnee AT TIME ZONE $3 AS DATE);
+    `, [date, hier, APP_TIMEZONE]);
 
     const aujourdHui = totalMilk.rows.find(
         row => row.date.toISOString().split('T')[0] === date
@@ -80,20 +93,20 @@ async function dailyMilk() {
     const totalLaitMaternel = await db.query(`
         SELECT SUM(quantite_lait) AS total_quantite_lait
         FROM donnees
-        WHERE date_donnee >= $1::DATE AND date_donnee < ($1::DATE + INTERVAL '1 day');
-    `, [date]);
+        WHERE CAST(date_donnee AT TIME ZONE $2 AS DATE) = $1::DATE;
+    `, [date, APP_TIMEZONE]);
 
     const totalUrine = await db.query(`
         SELECT COUNT(*) AS total_urine
         FROM donnees
-        WHERE date_donnee >= $1::DATE AND date_donnee < ($1::DATE + INTERVAL '1 day') AND urine = 'oui';
-    `, [date]);
+        WHERE CAST(date_donnee AT TIME ZONE $2 AS DATE) = $1::DATE AND urine = 'oui';
+    `, [date, APP_TIMEZONE]);
 
     const totalSelle = await db.query(`
         SELECT COUNT(*) AS total_selle
         FROM donnees
-        WHERE date_donnee >= $1::DATE AND date_donnee < ($1::DATE + INTERVAL '1 day') AND selle = 'oui';
-    `, [date]);
+        WHERE CAST(date_donnee AT TIME ZONE $2 AS DATE) = $1::DATE AND selle = 'oui';
+    `, [date, APP_TIMEZONE]);
 
     const lastSelleResult = await db.query(`
         SELECT * FROM donnees
