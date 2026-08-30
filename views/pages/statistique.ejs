@@ -9,7 +9,7 @@
 
     <p>
         La quantité totale bue aujourd'hui est :
-        <%= result.aujourdHui %> ml
+        <%= result.aujourdHui %> ml, à cette heure : <%= result.lastDrinkTimeToday ? new Date(result.lastDrinkTimeToday).toLocaleString('fr-FR') : "Aucune donnée" %>
     </p>
 
     <p>
