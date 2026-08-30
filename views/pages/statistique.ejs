@@ -8,8 +8,7 @@
   <% if (locals.result) { %>
 
     <p>
-        La quantité totale bue aujourd'hui est :
-        <%= result.aujourdHui %> ml
+        La quantité totale bue aujourd'hui est : <%= result.aujourdHui %> ml, à cette heure : <%= result.lastMilk ? new Date(result.lastMilk).toLocaleString('fr-FR') : "Aucune donnée" %>
     </p>
 
     <p>
