@@ -99,13 +99,21 @@ async function dailyMilk() {
         LIMIT 1;
     `);
 
+    const lastMilkResult = await db.query(`
+        SELECT * FROM donnees
+        WHERE quantite IS NOT NULL
+        ORDER BY date_donnee DESC
+        LIMIT 1;
+    `);
+
     return {
         aujourdHui: aujourdHui ? Number(aujourdHui.total_quantite) : 0,
         hier: hierResult ? Number(hierResult.total_quantite) : 0,
         quantiteLaitAujourdHui: totalLaitMaternel.rows[0] ? Number(totalLaitMaternel.rows[0].total_quantite_lait) || 0 : 0,
         urineAujourdHui: totalUrine.rows[0] ? Number(totalUrine.rows[0].total_urine) : 0,
         selleAujourdHui: totalSelle.rows[0] ? Number(totalSelle.rows[0].total_selle) : 0,
-        lastSelle: lastSelleResult.rows[0] ? lastSelleResult.rows[0].date_donnee : null
+        lastSelle: lastSelleResult.rows[0] ? lastSelleResult.rows[0].date_donnee : null,
+        lastMilk: lastMilkResult.rows[0] ? lastMilkResult.rows[0].date_donnee : null
     };
 }
 
