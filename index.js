@@ -56,18 +56,20 @@ async function dailyMilk() {
 
     const hier = today.toISOString().split('T')[0];
 
-    console.log(`[dailyMilk] Filtering donnees for date=${date} and hier=${hier} using timezone-aware date range`);
+    console.log(`[dailyMilk] Querying donnees in UTC space -> date=${date} (today), hier=${hier} (yesterday)`);
 
     const totalMilk = await db.query(`
         SELECT 
-            DATE(date_donnee) AS date,
+            CAST(date_donnee AT TIME ZONE 'UTC' AS DATE) AS date,
             SUM(quantite) AS total_quantite
         FROM donnees
-        WHERE (date_donnee >= $1::DATE AND date_donnee < ($1::DATE + INTERVAL '1 day'))
-           OR (date_donnee >= $2::DATE AND date_donnee < ($2::DATE + INTERVAL '1 day'))
-        GROUP BY DATE(date_donnee)
-        ORDER BY DATE(date_donnee);
+        WHERE CAST(date_donnee AT TIME ZONE 'UTC' AS DATE) = $1::DATE
+           OR CAST(date_donnee AT TIME ZONE 'UTC' AS DATE) = $2::DATE
+        GROUP BY CAST(date_donnee AT TIME ZONE 'UTC' AS DATE)
+        ORDER BY CAST(date_donnee AT TIME ZONE 'UTC' AS DATE);
     `, [date, hier]);
+
+    console.log(`[dailyMilk] totalMilk rows for date=${date} / hier=${hier}:`, totalMilk.rows);
 
     const aujourdHui = totalMilk.rows.find(
         row => row.date.toISOString().split('T')[0] === date
@@ -80,20 +82,26 @@ async function dailyMilk() {
     const totalLaitMaternel = await db.query(`
         SELECT SUM(quantite_lait) AS total_quantite_lait
         FROM donnees
-        WHERE date_donnee >= $1::DATE AND date_donnee < ($1::DATE + INTERVAL '1 day');
+        WHERE CAST(date_donnee AT TIME ZONE 'UTC' AS DATE) = $1::DATE;
     `, [date]);
+
+    console.log(`[dailyMilk] totalLaitMaternel rows for date=${date}:`, totalLaitMaternel.rows);
 
     const totalUrine = await db.query(`
         SELECT COUNT(*) AS total_urine
         FROM donnees
-        WHERE date_donnee >= $1::DATE AND date_donnee < ($1::DATE + INTERVAL '1 day') AND urine = 'oui';
+        WHERE CAST(date_donnee AT TIME ZONE 'UTC' AS DATE) = $1::DATE AND urine = 'oui';
     `, [date]);
+
+    console.log(`[dailyMilk] totalUrine rows for date=${date}:`, totalUrine.rows);
 
     const totalSelle = await db.query(`
         SELECT COUNT(*) AS total_selle
         FROM donnees
-        WHERE date_donnee >= $1::DATE AND date_donnee < ($1::DATE + INTERVAL '1 day') AND selle = 'oui';
+        WHERE CAST(date_donnee AT TIME ZONE 'UTC' AS DATE) = $1::DATE AND selle = 'oui';
     `, [date]);
+
+    console.log(`[dailyMilk] totalSelle rows for date=${date}:`, totalSelle.rows);
 
     const lastSelleResult = await db.query(`
         SELECT * FROM donnees
