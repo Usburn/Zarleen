@@ -5,10 +5,17 @@
 
 <main class="newPost" id="donnee">
 
+  <%
+    function formatDate(date) {
+      if (!date) return "Aucune donnée";
+      return new Date(date).toLocaleString('fr-FR', { timeZone: 'America/Toronto' });
+    }
+  %>
+
   <% if (locals.result) { %>
 
     <p>
-        La quantité totale bue aujourd'hui est : <%= result.aujourdHui %> ml, à cette heure : <%= result.lastMilk ? new Date(result.lastMilk).toLocaleString('fr-FR') : "Aucune donnée" %>
+        La quantité totale bue aujourd'hui est : <%= result.aujourdHui %> ml, à cette heure : <%= formatDate(result.lastMilk) %>
     </p>
 
     <p>
@@ -28,7 +35,7 @@
 
     <p style="color: red;">
         Dernière selle:
-        <%= result.lastSelle ? new Date(result.lastSelle).toLocaleString('fr-FR') : "Aucune donnée" %>
+        <%= formatDate(result.lastSelle) %>
     </p>
 
     <p>
@@ -39,20 +46,17 @@
 <% } %>
 
      <h1>Formulaire de collecte de données</h1>
- 
 
       <form action="/statistique" method="post" class="form_post">
 
-       
-           
             <div class="field">
                 <label for="date">Date-heure:</label>
-                <input type="datetime-local" id="date" name="date">
+                <input type="datetime-local" id="date" name="date" required>
             </div>
 
             <div class="field">
                 <label for="quantite">Quantité:</label>
-               <input type="number" name="quantite">
+               <input type="number" name="quantite" id="quantite" min="0" step="any">
             </div>
 
             <div class="field">
@@ -64,10 +68,9 @@
                 </select>
             </div>
 
-
-                <div class="field">
+            <div class="field">
                 <label for="urine">Urine:</label>
-                <select name="urine" id="selle">
+                <select name="urine" id="urine">
                     <option value="">Selectionner</option>
                     <option value="oui">oui</option>
                     <option value="non">non</option>
@@ -76,16 +79,13 @@
 
             <div class="field">
                 <label for="quantite_lait">Lait maternel:</label>
-               <input type="number" name="quantite_lait">
+               <input type="number" name="quantite_lait" id="quantite_lait" min="0" step="any">
             </div>
 
-
-               <div class="field">
+            <div class="field">
                 <label for="poids">Poids:</label>
-               <input type="number" name="poids" step="any">
+               <input type="number" name="poids" id="poids" min="0" step="any">
             </div>
-
-
 
             <button type="submit">Envoyer</button>
 
