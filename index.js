@@ -50,24 +50,16 @@ LIMIT 100;
 const APP_TIMEZONE = process.env.APP_TIMEZONE || "America/Toronto";
 
 async function dailyMilk() {
-    // Compute "today" and "yesterday" from the database server's point of view,
-    // but expressed in the user's local timezone instead of UTC. This avoids
-    // the classic bug where a user in Canada (UTC-4/5/6/7) enters data at, say,
-    // 11pm local time on Aug 29, but the server (running in UTC) thinks it's
-    // already Aug 30, so "today's" queries never find the entry.
-    const todayRow = await db.query(
-        `SELECT (CURRENT_DATE AT TIME ZONE $1)::DATE AS today`,
-        [APP_TIMEZONE]
-    );
+    // Compute "today" and "yesterday" in the user's local timezone using
+    // native JavaScript Date + toLocaleDateString, instead of round-tripping
+    // through the database just to figure out the current date.
+    const now = new Date();
 
-    const date = todayRow.rows[0].today;
+    const date = now.toLocaleDateString("en-CA", { timeZone: APP_TIMEZONE }); // YYYY-MM-DD
 
-    const hierRow = await db.query(
-        `SELECT ($1::DATE - INTERVAL '1 day')::DATE AS hier`,
-        [date]
-    );
-
-    const hier = hierRow.rows[0].hier;
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const hier = yesterday.toLocaleDateString("en-CA", { timeZone: APP_TIMEZONE }); // YYYY-MM-DD
 
     console.log(`[dailyMilk] Filtering donnees for date=${date} and hier=${hier} using timezone-aware date range (${APP_TIMEZONE})`);
 
@@ -83,37 +75,8 @@ async function dailyMilk() {
         ORDER BY CAST(date_donnee AT TIME ZONE $3 AS DATE);
     `, [date, hier, APP_TIMEZONE]);
 
-    const aujourdHui = totalMilk.rows.find(row => row.date.getTime() === date.getTime());
-    const hierResult = totalMilk.rows.find(row => row.date.getTime() === hier.getTime());
-
-    // Total breast milk quantity for today
-    const totalLaitMaternel = await db.query(`
-        SELECT SUM(quantite_lait) AS total_quantite_lait
-        FROM donnees
-        WHERE CAST(date_donnee AT TIME ZONE $2 AS DATE) = $1::DATE;
-    `, [date, APP_TIMEZONE]);
-
-    // Total urine count for today
-    const totalUrine = await db.query(`
-        SELECT COUNT(*) AS total_urine
-        FROM donnees
-        WHERE CAST(date_donnee AT TIME ZONE $2 AS DATE) = $1::DATE AND urine = 'oui';
-    `, [date, APP_TIMEZONE]);
-
-    // Total selle count for today
-    const totalSelle = await db.query(`
-        SELECT COUNT(*) AS total_selle
-        FROM donnees
-        WHERE CAST(date_donnee AT TIME ZONE $2 AS DATE) = $1::DATE AND selle = 'oui';
-    `, [date, APP_TIMEZONE]);
-
-    // Most recent selle entry
-    const lastSelleResult = await db.query(`
-        SELECT * FROM donnees
-        WHERE selle = 'oui'
-        ORDER BY date_donnee DESC
-        LIMIT 1;
-    `);
+    const aujourdHui = totalMilk.rows.find(row => row.date.toLocaleDateString("en-CA") === date);
+    const hierResult = totalMilk.rows.find(row => row.date.toLocaleDateString("en-CA") === hier);
 
     // Most recent milk entry
     const lastMilkResult = await db.query(`
@@ -127,10 +90,10 @@ async function dailyMilk() {
     return {
         aujourdHui: Number(aujourdHui?.total_quantite) || 0,
         hier: Number(hierResult?.total_quantite) || 0,
-        quantiteLaitAujourdHui: Number(totalLaitMaternel.rows[0]?.total_quantite_lait) || 0,
-        urineAujourdHui: Number(totalUrine.rows[0]?.total_urine) || 0,
-        selleAujourdHui: Number(totalSelle.rows[0]?.total_selle) || 0,
-        lastSelle: lastSelleResult.rows[0]?.date_donnee || null,
+        quantiteLaitAujourdHui: 0,
+        urineAujourdHui: 0,
+        selleAujourdHui: 0,
+        lastSelle: null,
         lastMilk: lastMilkResult.rows[0]?.date_donnee || null
     };
 }
