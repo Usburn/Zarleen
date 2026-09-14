@@ -82,9 +82,10 @@ async function dailyMilk() {
     const lastMilkResult = await db.query(`
         SELECT * FROM donnees
         WHERE quantite IS NOT NULL
+        AND CAST(date_donnee AT TIME ZONE $2 AS DATE) = $1::DATE
         ORDER BY date_donnee DESC
         LIMIT 1;
-    `);
+    `, [date, APP_TIMEZONE]);
 
     // Build final result object
     return {
