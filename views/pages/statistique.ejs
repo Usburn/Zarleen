@@ -8,7 +8,7 @@
   <%
     function formatDate(date) {
       if (!date) return "0";
-      return new Date(date).toLocaleString('fr-FR', { timeZone: 'America/Toronto' });
+      return new Date(date).toLocaleString('fr-FR', { timeZone: 'UTC' });
     }
   %>
 

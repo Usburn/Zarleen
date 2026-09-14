@@ -78,6 +78,28 @@ async function dailyMilk() {
     const aujourdHui = totalMilk.rows.find(row => row.date.toLocaleDateString("en-CA") === date);
     const hierResult = totalMilk.rows.find(row => row.date.toLocaleDateString("en-CA") === hier);
 
+    // Combined stats for today: lait maternel tiré, urines, selles.
+    // COALESCE guards against a NULL SUM when no rows have quantite_lait,
+    // and COUNT(*) FILTER lets us count urine/selle occurrences in one pass.
+    const todayStats = await db.query(`
+        SELECT
+            COALESCE(SUM(quantite_lait), 0) AS quantite_lait_total,
+            COUNT(*) FILTER (WHERE urine = 'oui') AS urine_count,
+            COUNT(*) FILTER (WHERE selle = 'oui') AS selle_count
+        FROM donnees
+        WHERE CAST(date_donnee AT TIME ZONE $2 AS DATE) = $1::DATE;
+    `, [date, APP_TIMEZONE]);
+
+    const stats = todayStats.rows[0] || {};
+
+    // Most recent selle entry (all time)
+    const lastSelleResult = await db.query(`
+        SELECT * FROM donnees
+        WHERE selle = 'oui'
+        ORDER BY date_donnee DESC
+        LIMIT 1;
+    `);
+
     // Most recent milk entry
     const lastMilkResult = await db.query(`
         SELECT * FROM donnees
@@ -91,10 +113,10 @@ async function dailyMilk() {
     return {
         aujourdHui: Number(aujourdHui?.total_quantite) || 0,
         hier: Number(hierResult?.total_quantite) || 0,
-        quantiteLaitAujourdHui: 0,
-        urineAujourdHui: 0,
-        selleAujourdHui: 0,
-        lastSelle: null,
+        quantiteLaitAujourdHui: Number(stats.quantite_lait_total) || 0,
+        urineAujourdHui: Number(stats.urine_count) || 0,
+        selleAujourdHui: Number(stats.selle_count) || 0,
+        lastSelle: lastSelleResult.rows[0]?.date_donnee || null,
         lastMilk: lastMilkResult.rows[0]?.date_donnee || null
     };
 }
