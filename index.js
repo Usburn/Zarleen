@@ -60,17 +60,18 @@ async function dailyMilk() {
         [APP_TIMEZONE]
     );
 
-    const date = todayRow.rows[0].today.toISOString().split('T')[0];
+    const date = todayRow.rows[0].today;
 
     const hierRow = await db.query(
         `SELECT ($1::DATE - INTERVAL '1 day')::DATE AS hier`,
         [date]
     );
 
-    const hier = hierRow.rows[0].hier.toISOString().split('T')[0];
+    const hier = hierRow.rows[0].hier;
 
     console.log(`[dailyMilk] Filtering donnees for date=${date} and hier=${hier} using timezone-aware date range (${APP_TIMEZONE})`);
 
+    // Total milk quantity for today and yesterday
     const totalMilk = await db.query(`
         SELECT 
             CAST(date_donnee AT TIME ZONE $3 AS DATE) AS date,
@@ -82,32 +83,31 @@ async function dailyMilk() {
         ORDER BY CAST(date_donnee AT TIME ZONE $3 AS DATE);
     `, [date, hier, APP_TIMEZONE]);
 
-    const aujourdHui = totalMilk.rows.find(
-        row => row.date.toISOString().split('T')[0] === date
-    );
+    const aujourdHui = totalMilk.rows.find(row => row.date.getTime() === date.getTime());
+    const hierResult = totalMilk.rows.find(row => row.date.getTime() === hier.getTime());
 
-    const hierResult = totalMilk.rows.find(
-        row => row.date.toISOString().split('T')[0] === hier
-    );
-
+    // Total breast milk quantity for today
     const totalLaitMaternel = await db.query(`
         SELECT SUM(quantite_lait) AS total_quantite_lait
         FROM donnees
         WHERE CAST(date_donnee AT TIME ZONE $2 AS DATE) = $1::DATE;
     `, [date, APP_TIMEZONE]);
 
+    // Total urine count for today
     const totalUrine = await db.query(`
         SELECT COUNT(*) AS total_urine
         FROM donnees
         WHERE CAST(date_donnee AT TIME ZONE $2 AS DATE) = $1::DATE AND urine = 'oui';
     `, [date, APP_TIMEZONE]);
 
+    // Total selle count for today
     const totalSelle = await db.query(`
         SELECT COUNT(*) AS total_selle
         FROM donnees
         WHERE CAST(date_donnee AT TIME ZONE $2 AS DATE) = $1::DATE AND selle = 'oui';
     `, [date, APP_TIMEZONE]);
 
+    // Most recent selle entry
     const lastSelleResult = await db.query(`
         SELECT * FROM donnees
         WHERE selle = 'oui'
@@ -115,6 +115,7 @@ async function dailyMilk() {
         LIMIT 1;
     `);
 
+    // Most recent milk entry
     const lastMilkResult = await db.query(`
         SELECT * FROM donnees
         WHERE quantite IS NOT NULL
@@ -122,14 +123,15 @@ async function dailyMilk() {
         LIMIT 1;
     `);
 
+    // Build final result object
     return {
-        aujourdHui: aujourdHui ? Number(aujourdHui.total_quantite) : 0,
-        hier: hierResult ? Number(hierResult.total_quantite) : 0,
-        quantiteLaitAujourdHui: totalLaitMaternel.rows[0] ? Number(totalLaitMaternel.rows[0].total_quantite_lait) || 0 : 0,
-        urineAujourdHui: totalUrine.rows[0] ? Number(totalUrine.rows[0].total_urine) : 0,
-        selleAujourdHui: totalSelle.rows[0] ? Number(totalSelle.rows[0].total_selle) : 0,
-        lastSelle: lastSelleResult.rows[0] ? lastSelleResult.rows[0].date_donnee : null,
-        lastMilk: lastMilkResult.rows[0] ? lastMilkResult.rows[0].date_donnee : null
+        aujourdHui: Number(aujourdHui?.total_quantite) || 0,
+        hier: Number(hierResult?.total_quantite) || 0,
+        quantiteLaitAujourdHui: Number(totalLaitMaternel.rows[0]?.total_quantite_lait) || 0,
+        urineAujourdHui: Number(totalUrine.rows[0]?.total_urine) || 0,
+        selleAujourdHui: Number(totalSelle.rows[0]?.total_selle) || 0,
+        lastSelle: lastSelleResult.rows[0]?.date_donnee || null,
+        lastMilk: lastMilkResult.rows[0]?.date_donnee || null
     };
 }
 
