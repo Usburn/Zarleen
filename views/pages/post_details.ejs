@@ -83,6 +83,20 @@
 
       </div>
 
+      <form action="/post_commentaires" method="POST" enctype="multipart/form-data" class="add-comment-form">
+
+        <input type="hidden" name="post_choisi" value="<%= post.id_post %>">
+
+        <textarea name="commentaire" placeholder="Ajouter un commentaire"></textarea>
+
+        <input type="file" name="image">
+
+        <button type="submit">
+          Ajouter un commentaire
+        </button>
+
+      </form>
+
       <button type="button" id="modification">
         Modifier ce post
       </button>
