@@ -66,14 +66,14 @@ async function dailyMilk() {
     // Total milk quantity for today and yesterday
     const totalMilk = await db.query(`
         SELECT 
-            CAST(date_donnee AT TIME ZONE $3 AS DATE) AS date,
+            CAST(date_donnee AS DATE) AS date,
             SUM(quantite) AS total_quantite
         FROM donnees
-        WHERE CAST(date_donnee AT TIME ZONE $3 AS DATE) = $1::DATE
-           OR CAST(date_donnee AT TIME ZONE $3 AS DATE) = $2::DATE
-        GROUP BY CAST(date_donnee AT TIME ZONE $3 AS DATE)
-        ORDER BY CAST(date_donnee AT TIME ZONE $3 AS DATE);
-    `, [date, hier, APP_TIMEZONE]);
+        WHERE CAST(date_donnee AS DATE) = $1::DATE
+           OR CAST(date_donnee AS DATE) = $2::DATE
+        GROUP BY CAST(date_donnee AS DATE)
+        ORDER BY CAST(date_donnee AS DATE);
+    `, [date, hier]);
 
     const aujourdHui = totalMilk.rows.find(row => row.date.toLocaleDateString("en-CA") === date);
     const hierResult = totalMilk.rows.find(row => row.date.toLocaleDateString("en-CA") === hier);
@@ -87,8 +87,8 @@ async function dailyMilk() {
             COUNT(*) FILTER (WHERE urine = 'oui') AS urine_count,
             COUNT(*) FILTER (WHERE selle = 'oui') AS selle_count
         FROM donnees
-        WHERE CAST(date_donnee AT TIME ZONE $2 AS DATE) = $1::DATE;
-    `, [date, APP_TIMEZONE]);
+        WHERE CAST(date_donnee AS DATE) = $1::DATE;
+    `, [date]);
 
     const stats = todayStats.rows[0] || {};
 
@@ -104,10 +104,10 @@ async function dailyMilk() {
     const lastMilkResult = await db.query(`
         SELECT * FROM donnees
         WHERE quantite IS NOT NULL
-        AND CAST(date_donnee AT TIME ZONE $2 AS DATE) = $1::DATE
+        AND CAST(date_donnee AS DATE) = $1::DATE
         ORDER BY date_donnee DESC
         LIMIT 1;
-    `, [date, APP_TIMEZONE]);
+    `, [date]);
 
     // Build final result object
     return {
