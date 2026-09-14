@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS posts(
 
 CREATE TABLE IF NOT EXISTS comments(
  id_comment SERIAL PRIMARY KEY,
- content VARCHAR(542) default NULL,
+ content TEXT default NULL,
  date_comment date,
  image TEXT,
  id_post INT NOT NULL,
